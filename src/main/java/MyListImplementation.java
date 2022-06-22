@@ -4,43 +4,33 @@ public class MyListImplementation<T> implements MyList<T> {
     private Object[] array = new Object[10];
 
     private int indexCurrent = 0; //nearest index for adding
-    private int resizeStep = 2;
+    private final int RESIZE_STEP = 2;
 
+    @Override
+    public void addByIndex(T value, int indexAdd) {
+        if (!checkIfIndexNegative(indexAdd) && !checkIfIndexMoreCurrent(indexAdd)) {
+                if (indexAdd == array.length) {
+                    resize();
+                }
+                System.arraycopy(array, indexAdd, array, indexAdd+1, indexCurrent - indexAdd);
+                array[indexAdd] = value;
+                indexCurrent++;
+        }
+    }
     @Override
     public void add(T value) {
         if (indexCurrent==array.length) {
             resize();
         }
-        array[indexCurrent++] = value;
+        addByIndex(value,indexCurrent);
     }
 
     @Override
-    public void addByIndex(T value, int indexAdd) {
-        if (!checkIfIndexNegative(indexAdd) && !checkIfIndexMoreCurrent(indexAdd)) {
-            if (checkIfIndexEqualCurrent(indexAdd)) {
-                if (indexAdd == array.length) {
-                    resize();
-                }
-                array[indexAdd] = value;
-                indexCurrent++;
-            } else { // indexAdd < indexCurrent<array.length
-                int lengthOfArrayTemp = indexCurrent - indexAdd;
-                Object[] arrayTemp = new Object[lengthOfArrayTemp];
-                System.arraycopy(array, indexAdd, arrayTemp, 0, lengthOfArrayTemp);
-                System.out.println("Temp" + Arrays.toString(array));
-                array[indexAdd++] = value;
-                System.arraycopy(arrayTemp, 0, array, indexAdd, lengthOfArrayTemp);
-
-            }
-            indexCurrent++;
+    public T get(int index)
+    { if (!checkIfIndexNegative(index)&& !checkIfIndexMoreCurrent(index)&&!checkIfIndexEqualCurrent(index)) {
+        return (T)array[index];
         }
-    }
-   @Override
-    public Object get(int index)
-    { if (!checkIfIndexNegative(index)&& !checkIfIndexMoreCurrent(index)&&!checkIfIndexEqualCurrent(index))
-    {return array[index];}
-        else
-            return "error";
+            return null;
     }
 
    @Override
@@ -52,7 +42,7 @@ public class MyListImplementation<T> implements MyList<T> {
     @Override
     public int indexOf(T value) {
         for (int i = 0; i < indexCurrent; i++) {
-            if (array[i] == value) {
+            if (array[i].equals(value)) {
                 return i;
             }
         }
@@ -67,18 +57,16 @@ public class MyListImplementation<T> implements MyList<T> {
     };//удалить все элементы
 
     @Override
-    public Object remove(int indexRemove){
+    public T remove(int indexRemove){
         if (!checkIfIndexNegative(indexRemove)&& !checkIfIndexMoreCurrent(indexRemove)&&!checkIfIndexEqualCurrent(indexRemove)) {
-              Object removedValue = array[indexRemove];
+              T removedValue = (T)array[indexRemove];
                 if (indexRemove < indexCurrent - 1) {
-                    for (int i = indexRemove; i < indexCurrent - 1; i++) {
-                        array[i] = array[i + 1];
+                    System.arraycopy(array, indexRemove+1, array, indexRemove, indexCurrent - indexRemove- 1);
                     }
-                }
                 indexCurrent--;
             return removedValue;
         }
- return "error";
+ return null;
 }
 
     @Override
@@ -99,7 +87,7 @@ public class MyListImplementation<T> implements MyList<T> {
     }
 
     private void resize() { // return type
-        Object[] arrayTemp = new Object[resizeStep * array.length];
+        Object[] arrayTemp = new Object[RESIZE_STEP * array.length];
         System.arraycopy(array, 0, arrayTemp, 0, array.length);
         array = arrayTemp;
     }
@@ -108,27 +96,24 @@ public class MyListImplementation<T> implements MyList<T> {
        if (index < 0) {
            System.out.println("Invalid index");
            return true;
-       } else {
-           return false;
        }
+           return false;
    }
    private boolean checkIfIndexMoreCurrent(int index) {
        if (index > indexCurrent) {
            System.out.println("Invalid index");
            return true;
-       } else {
+       }
            return false;
        }
-   }
+
     private boolean checkIfIndexEqualCurrent(int index){
            if (index == indexCurrent) {
-               System.out.println("Invalid index");
                return true;
-           } else {
+           }
                return false;
            }
 
-   }
     public int getIndex() {
         return indexCurrent;
     }
